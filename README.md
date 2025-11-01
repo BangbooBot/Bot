@@ -4,7 +4,7 @@ An intelligent Discord bot built with Deno.
 
 Hi, I’m @NathanMiguel, and I’m developing a bot to help me moderate my community, play music, and streamline some tasks using AI.
 
-This project is currently for my personal use, but I hope to monetize it in the future but keeping community side. 😄
+This project is currently for my personal use, but I hope to monetize it in the future to bring more features to community use. 😄
 
 # Awesome Bot Base
 
