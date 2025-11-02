@@ -1,24 +1,5 @@
-# Folders
-/build
-/dist
-/discloud
-/deprecated
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
 /node_modules
-
-# Files
-/.env
-/.env.dev
-/.env.development
-/package-lock.json
-/deno.lock
-
-# Config files
-/firebase.json
-
-# Extensions
-*.zip
-*.sqlite
-*.sql
-*.exe
-*.db
-*.development.json
+package-lock.json
