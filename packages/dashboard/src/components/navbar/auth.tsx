@@ -4,6 +4,6 @@ import Link from 'next/link';
 
 export function Auth() {
     return(
-        <Link href={"/login"} className="">Login</Link>
+        <Link href={"/login"} className="nav-links-login">Login with Discord</Link>
     )
 }

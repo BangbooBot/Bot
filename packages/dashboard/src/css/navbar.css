@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+.nav-links {
+    @apply font-bold px-4 py-1 rounded-full hover:scale-110 hover:bg-white hover:text-black;
+}
+
+.nav-links-login {
+    @apply font-bold px-4 py-1 rounded-full border-4
+    hover:bg-lime-300 border-lime-300 text-neutral-300 hover:text-black;
+}

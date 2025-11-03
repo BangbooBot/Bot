@@ -28,8 +28,8 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <header className="sticky pb-2">
-          <div className="h-20 dark:bg-neutral-800 xl:px-[calc((100vw-1280px)/2)]">
+        <header className="w-full sticky top-0 inset-x-0 pb-2">
+          <div className="w-full h-20 bg-black/20 xl:px-[calc((100vw-1280px)/2)] backdrop-blur-lg">
             <MainNavBar/>
           </div>
         </header>
