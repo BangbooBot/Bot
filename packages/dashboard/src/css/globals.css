@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+* {
+  @apply transition-all duration-300
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

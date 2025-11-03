@@ -3,7 +3,8 @@ import { NextRequest, NextResponse, type ProxyConfig } from "next/server"
 const publicRoutes = [
     { path: "/sign-in", whenAuthenticated: "redirect" },
     { path: "/", whenAuthenticated: "next" },
-    { path: "/commands", whenAuthenticated: "next" }
+    { path: "/commands", whenAuthenticated: "next" },
+    { path: "/about", whenAuthenticated: "next" }
 ] as const;
 
 const REDIRECT_WHEN_NOT_AUTHENTICATED_ROUTE = "/sing-in"

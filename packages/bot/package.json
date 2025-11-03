@@ -13,15 +13,15 @@
     "start:dev": "node --env-file .env.dev ."
   },
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "@magicyan/discord": "^1.6.3",
-    "@napi-rs/canvas": "^0.1.81",
-    "@reliverse/reglob": "^1.0.0",
-    "chalk": "^5.6.2",
-    "discloud.app": "^1.2.0",
-    "discord.js": "^14.24.2",
-    "rou3": "^0.7.9",
-    "zod": "^4.1.12"
+    "@google/generative-ai": "latest",
+    "@magicyan/discord": "latest",
+    "@napi-rs/canvas": "latest",
+    "@reliverse/reglob": "latest",
+    "chalk": "latest",
+    "discloud.app": "latest",
+    "discord.js": "latest",
+    "rou3": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
     "@types/node": "latest",
