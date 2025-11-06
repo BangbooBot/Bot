@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+.bg-card {
+    background-color: #E5D3C2;
+}
+
+.bg-card-section {
+    background-color: #2A2F2A;
+}
+
+.text-card {
+    color: #E5D3C2;
+}
+
+.text-card-section {
+    color: #2A2F2A;
+}
+
+.border-card {
+    border-color: #E5D3C2;
+}
+
+.card {
+    @apply py-4 px-8 rounded-xl flex flex-col gap-y-2 max-w-3xl;
+    
+}
+
+.card-section-owner {
+    @apply w-fit py-1 px-2 flex rounded-full;
+}
+
+.card-section-owner h1 {
+    @apply mx-2 font-sans text-[20px] font-extrabold;
+}
+
+.card-section-title {
+    @apply py-1 px-2 rounded-md flex;
+}
+
+.card-section-title h1 {
+    @apply text-8xl;
+}
+
+.card-section-intro {
+    @apply py-1 px-2 flex justify-between gap-2 rounded-md;
+}
+
+.card-section-intro > div:nth-child(1) {
+    @apply relative w-70 h-fit flex justify-start rounded-md border-4;
+}
+
+.card-section-intro > div:nth-child(1) img {
+    @apply h-fit mx-auto py-2;
+}
+
+.card-section-intro > div:nth-child(1) div {
+    @apply absolute bottom-0 w-full h-16 py-2 flex justify-center;
+}
+
+.card-section-intro > div:nth-child(1) div p {
+    @apply font-extrabold;
+}
+
+.card-section-intro > div:nth-child(2) {
+    @apply flex flex-col gap-2;
+}
+
+.card-section-intro > div:nth-child(2) h1 {
+    @apply text-start text-[32px] leading-8;
+}
+
+.card-section-intro > div:nth-child(2) p {
+    @apply text-justify text-[20px] max-w-[300px] whitespace-normal;
+}
+
+.card-section-info {
+    @apply py-1 px-2 rounded-md flex;
+}
