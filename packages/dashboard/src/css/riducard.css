@@ -74,5 +74,41 @@
 }
 
 .card-section-info {
-    @apply py-1 px-2 rounded-md flex;
+    @apply py-4 px-2 rounded-md flex flex-col items-center gap-4;
+}
+
+.card-section-info > div:nth-child(1) {
+    @apply flex justify-between gap-16;
+}
+
+.card-section-info > div:nth-child(1) div {
+    @apply flex flex-col items-center gap-y-2;
+}
+
+.card-section-info > div:nth-child(1) div img {
+    @apply w-11;
+}
+
+.card-section-info > div:nth-child(1) div h5 {
+    @apply text-[1rem];
+}
+
+.card-section-info > div:nth-child(2) {
+    @apply flex justify-between gap-16;
+}
+
+.card-section-info > div:nth-child(2) div {
+    @apply flex flex-col items-center gap-y-2;
+}
+
+.card-section-info > div:nth-child(2) div div {
+    @apply w-20 h-12 px-2 rounded-xl;
+}
+
+.card-section-info > div:nth-child(2) div div p {
+    @apply font-bold;
+}
+
+.card-section-info > div:nth-child(2) div h5 {
+    @apply text-[1rem];
 }

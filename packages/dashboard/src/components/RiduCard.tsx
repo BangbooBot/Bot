@@ -29,7 +29,39 @@ export default function Card() {
         </section>
 
         <section className="card-section-info bg-card-section">
-          <h1 className="font-[Anton] text-card">FEATURES</h1>
+          <div>
+            <div>
+              <img src="/icons/card-shield.svg" alt="Twitch"/>
+              <h5>Moderação</h5>
+            </div>
+            <div>
+              <img src="/icons/card-role.svg" alt="Twitch"/>
+              <h5>Cargos</h5>
+            </div>
+            <div>
+              <img src="/icons/card-language.svg" alt="Twitch"/>
+              <h5>Idioma</h5>
+            </div>
+            <div>
+              <img src="/icons/card-luck.svg" alt="Twitch"/>
+              <h5>Sorteios</h5>
+            </div>
+            <div>
+              <img src="/icons/card-twitch.svg" alt="Twitch"/>
+              <h5>Twitch</h5>
+            </div>
+          </div>
+          
+          <div>
+            <div>
+              <div className='bg-card'><p className='text-card-section'>400</p></div>
+              <h5>Servidores</h5>
+            </div>
+            <div>
+              <div className='bg-card'><p className='text-card-section'>20</p></div>
+              <h5>Comandos</h5>
+            </div>
+          </div>
         </section>
       </div>
     </>
