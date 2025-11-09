@@ -8,10 +8,8 @@ export const Route = createFileRoute('/_public/')({
 
 function App() {
   return (
-    <div className="text-center">
-      <header className="min-h-screen flex flex-col items-center justify-center text-white text-[calc(10px+2vmin)]">
-        <Card />
-      </header>
+    <div className="min-h-[calc(100vh-80px)] py-4 flex flex-col items-center justify-center">
+      <Card />
     </div>
   )
 }

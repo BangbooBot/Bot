@@ -1,23 +1,45 @@
-# Awesome Bot Base
+# Bangboo Discord Bot
 
-> [!NOTE] 
-> This project **base** can be generated using the [Constant CLI](https://github.com/rinckodev/constatic)
-> See the full documentation for this base by accessing: https://constatic-docs.vercel.app/docs/discord/start
+An intelligent Discord bot built with Rust.
 
-This is the most complete discord bot base you've ever seen! Developed by [@rinckodev](https://github.com/rinckodev), this project uses typescript in an incredible way to provide complete structures and facilitate the development of your discord bot.
+Hi, I’m @NathanMiguel, and I’m developing a bot to help me moderate my community and streamline some tasks using AI.
 
-> [!WARNING]
-> [NodeJs](https://nodejs.org/en) version required: 20.12 or higher
+This project is currently for my personal use, but I hope to monetize it in the future. 😄
+
+## Download and Install
+
+---
+
+- [Git](https://git-scm.com)
+
+- [Rust](https://www.rust-lang.org/)
+
+- Windows only
+    - Build With Visual Studio 2022
+        - [Visual Studio 2022](https://visualstudio.microsoft.com/downloads/)
+        - 👇 Install the following workloads:
+        - Game Development with C++
+        - MSVC v142 or above | x64/x86
+        - C++ 2015/2022 redistributable update
+
+- Linux only
+    - Build With GNU ```install with package manager```
+        - GCC and G++ 9.x or above
+        - make
+        - m4
+        - autoconf
+        - automake
 
 ## Scripts
 
-- `dev`: running bot in development
-- `build`: build the project
-- `watch`: running in watch mode
-- `start`: running the compiled bot
+- `cargo run`: running bot
+- `cargo build --release`: build the bot project
 
-## Structures
+## Thirdparty Libraries
 
-- [Commands](https://constatic-docs.vercel.app/docs/discord/commands)
-- [Responder](https://constatic-docs.vercel.app/docs/discord/responders)
-- [Events](https://constatic-docs.vercel.app/docs/discord/events)
+- [Serenity](https://crates.io/crates/serenity)
+- [Skia Safe](https://crates.io/crates/skia-safe)
+
+## Special Mentions
+
+- [Ravena Star](https://github.com/ravenastar-js/shortlinks-scams) by the scam message filter against messages like ```free steam gift card```.

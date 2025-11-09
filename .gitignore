@@ -2,4 +2,6 @@
 
 # dependencies
 /node_modules
+/target
+Cargo.lock
 package-lock.json

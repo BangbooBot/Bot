@@ -9,20 +9,21 @@ export default function Header() {
 
   return (
     <>
-      <header className="fixed w-full p-4 flex justify-between items-center bg-black/10 text-white backdrop-blur-md  shadow-lg shadow-white/10 z-30">
+      <header className="w-full min-w-0 sticky top-0 inset-x-0 z-30 p-4 xl:px-[calc((100vw-1280px)/2)] flex justify-between items-center bg-black/10 text-white backdrop-blur-md  shadow-lg shadow-white/10">
         <div className='flex justify-start items-center gap-2'>
           <Link to="/" className="mx-8 flex gap-4 items-center">
             <img
-              src="/images/bangboo/Butler.png"
+              src="/images/bangboo/Penguinboo.png"
               alt="Bangboo"
-              className="h-12 drop-shadow-sm drop-shadow-lime-600"
+              className="h-14 drop-shadow-sm drop-shadow-lime-600"
             />
-            <h1 className="text-2xl font-bold">BANGBOO</h1>
           </Link>
+        </div>
 
-          <Link to='/' className='nav-links'>Home</Link>
-          <Link to='/' className='nav-links'>Commands</Link>
-          <Link to='/' className='nav-links'>About</Link>
+        <div className='flex justify-center items-center gap-2'>
+          <Link to='/' className='nav-links'>HOME</Link>
+          <Link to='/' className='nav-links'>COMMANDS</Link>
+          <Link to='/' className='nav-links'>STATUS</Link>
         </div>
 
         <div className='flex justify-end items-center gap-2'>
