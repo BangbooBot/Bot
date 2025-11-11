@@ -20,7 +20,10 @@ pub const CARD_NEW: &[u8] = include_bytes!("../assets/cards/card-new.png");
 
 // JSON
 const COLORSJSON: &str = include_str!("../data/colors.json");
-pub static COLORS: Lazy<Colors> = Lazy::new(|| serde_json::from_str(&COLORSJSON).unwrap());
+pub static COLORS: Lazy<Colors> = Lazy::new(|| {
+    let constants: Constants = serde_json::from_str(&COLORSJSON).unwrap();
+    constants.colors
+});
 
 const EMOJISJSON: &str = include_str!("../data/emojis.json");
 pub static EMOJIS: Lazy<Emojis> = Lazy::new(|| serde_json::from_str(&EMOJISJSON).unwrap());

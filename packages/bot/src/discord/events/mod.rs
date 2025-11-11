@@ -1,15 +1,19 @@
+mod ban_add;
+mod member_add;
+mod member_removed;
+mod member_update;
+mod message_create;
+mod ready;
+
 use super::base::*;
-use serenity::all::{async_trait, Context, EventHandler, FullEvent};
 
-#[async_trait]
-impl EventHandler for App {
-    async fn dispatch(&self, _context: &Context, _event: &FullEvent) {
-        match _event {
-            FullEvent::Ready { data_about_bot, .. } => {
-                
-            }
+pub fn events() -> Vec<Box<dyn EventHandler + Send + Sync>> {
+    let events: Vec<Box<dyn EventHandler + Send + Sync>> = vec![
+        Box::new(ban_add::BanAdd),
+        Box::new(ready::Ready),
+        Box::new(message_create::MessageCreate),
+        Box::new(member_removed::MemberRemove),
+    ];
 
-            _ => {}
-        }
-    }
+    events
 }

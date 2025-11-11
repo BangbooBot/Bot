@@ -1,22 +1,20 @@
 use crate::constants::*;
 use crate::functions::*;
-use serenity::all::{
-    CacheHttp, ChannelId, Colour, Context, CreateAttachment, CreateEmbed, CreateEmbedAuthor,
-    CreateMessage, GuildId, Member, User,
-};
 use skia_safe::{EncodedImageFormat, ISize, Point};
+use twilight_gateway::EventType;
+use twilight_http::Client;
+use twilight_model::guild::Member;
+use twilight_model::http::attachment::Attachment;
+use twilight_model::id::Id;
+use twilight_model::id::marker::ChannelMarker;
+use twilight_model::user::User;
+use twilight_util::snowflake::Snowflake;
+use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-#[derive(Eq, PartialEq)]
-pub enum EventType {
-    MemberAdded,
-    MemberRemoved,
-    BanAdded,
-}
-
 pub async fn global_message(
-    ctx: &Context,
-    channel_id: &ChannelId,
+    http: Arc<Client>,
+    channel_id: &Id<ChannelMarker>,
     event: EventType,
     member: Option<&Member>,
     user: &User,
@@ -39,16 +37,16 @@ pub async fn global_message(
     }
 
     let background = match event {
-        EventType::MemberAdded => {
+        EventType::MemberAdd => {
             let date = match SystemTime::now().duration_since(UNIX_EPOCH) {
                 Ok(duration) => duration.as_millis(),
                 Err(_) => 0,
             };
             let join_age = match member.unwrap().joined_at {
-                Some(joined_at) => date - joined_at.timestamp_millis() as u128,
+                Some(joined_at) => date - (joined_at.as_micros() / 1000) as u128,
                 None => 0,
             };
-            let account_age = date - user.id.created_at().timestamp_millis() as u128;
+            let account_age = date - user.id.timestamp() as u128;
             const TIME_LIMIT: u128 = 300 * 1000;
             if join_age < TIME_LIMIT {
                 CARD_NEW
@@ -58,8 +56,8 @@ pub async fn global_message(
                 CARD_BACK
             }
         }
-        EventType::MemberRemoved => CARD_LEFT,
-        EventType::BanAdded => CARD_MOD,
+        EventType::MemberRemove => CARD_LEFT,
+        EventType::BanAdd => CARD_MOD,
     };
 
     let mut data = vec![];
@@ -138,25 +136,30 @@ pub async fn global_message(
     }
 
     let mut utc = String::new();
-    if event == EventType::MemberAdded {
-        let joined_at = member.unwrap().joined_at.unwrap_or_default().timestamp();
+    if event == EventType::MemberAdd {
+        let joined_at = match member.unwrap().joined_at {
+            Some(timestamp) => timestamp.as_micros() / 1000,
+            None => 0,
+        };
         utc.push_str(&format!("<t:{}:F>", joined_at));
     }
-    let attachment = CreateAttachment::bytes(data, "card.png");
-    let message = CreateMessage::new()
-        .content(utc)
-        .add_files(vec![attachment]);
+    let attachment = Attachment::from_bytes("Card.png".to_string(), data, 0);
 
-    if let Err(err) = channel_id.widen().send_message(ctx.http(), message).await {
+    let res = http.create_message(channel_id.clone())
+        .attachments(&[attachment])
+        .content(&utc)
+        .await;
+
+    if let Err(err) = res {
         error(&format!(
             "Error trying to send card to system channel\nʟ {:?}",
             err
         ));
     }
 }
-
+/*
 pub async fn global_boost(ctx: &Context, user: &User, guild_id: &GuildId) {
-    /*
+    
     let color = Colour::new(COLORS.nitro);
     let avatar_url = user.avatar_url().unwrap_or_default();
     let username = user.global_name.clone().unwrap_or(user.name.clone());
@@ -194,5 +197,6 @@ pub async fn global_boost(ctx: &Context, user: &User, guild_id: &GuildId) {
     if let Err(err) = channel.send_message(ctx.http(), payload).await {
         error(&format!("Failed to send message!\n└ {:?}", err));
     }
-    */
+    
 }
+*/

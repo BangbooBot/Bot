@@ -1,55 +1,139 @@
-use crate::discord::*;
-use serenity::builder::CreateCommand;
-use std::collections::HashMap;
+use crate::discord::HANDLERS;
+use crate::functions::log;
+use crate::{env::ENV, functions::error};
+use std::sync::Arc;
+use tokio::{
+    sync::Mutex,
+    task::JoinSet
+    ,
+};
+use twilight_cache_inmemory::{DefaultInMemoryCache, InMemoryCache, ResourceType};
+use twilight_gateway::{
+    Config, ConfigBuilder, Event, EventTypeFlags, Intents, Shard,
+    StreamExt as _,
+};
+use twilight_http::Client;
+use twilight_model::application::interaction::InteractionData;
 
 pub struct App {
-    pub commands: Vec<CreateCommand<'static>>,
-    pub prefix_command_handlers: HashMap<String, Box<dyn PrefixCommandHandler + Send + Sync>>,
-    pub slash_command_handlers: HashMap<String, Box<dyn SlashCommandHandler + Send + Sync>>,
-    pub responder_handlers: HashMap<String, Box<dyn ResponderHandler + Send + Sync>>,
+    pub client: Arc<Client>,
+    pub cache: Arc<InMemoryCache>,
+    pub shards: Vec<Arc<Mutex<Shard>>>,
 }
 
 impl App {
-    pub fn bootstrap() -> Self {
-        let slash_commands = slash_commands();
-        let mut commands = Vec::new();
-        let mut slash_command_handlers = HashMap::new();
-        for slash_command in slash_commands {
-            let cmd = slash_command.command();
-            let name = extract_command_name(&cmd);
-            commands.push(cmd);
-            slash_command_handlers.insert(name, slash_command);
-        }
+    pub async fn bootstrap(intents: Intents) -> Self {
+        let token = &ENV.BOT_TOKEN;
 
-        let prefix_commands = prefix_commands();
-        let mut prefix_command_handlers = HashMap::new();
-        for command in prefix_commands {
-            let name = format!("!{}", command.name());
-            prefix_command_handlers.insert(name, command);
-        }
+        let client = Arc::new(Client::new(token.clone()));
 
-        let responders = responders();
-        let mut responder_handlers = HashMap::new();
-        for responder in responders {
-            let custom_id = responder.custom_id();
-            responder_handlers.insert(custom_id, responder);
-        }
+        let config = Config::new(token.clone(), intents);
+        let config_callback = |_, builder: ConfigBuilder| builder.build();
+
+        let mut shards =
+            match twilight_gateway::create_recommended(&client, config.clone(), config_callback)
+                .await
+            {
+                Ok(shards) => shards,
+                Err(err) => {
+                    error(&format!("Error trying to create shards\n└ {:?}", err));
+                    panic!();
+                }
+            }
+            .into_iter()
+            .map(|shard| Arc::new(Mutex::new(shard)))
+            .collect::<Vec<Arc<Mutex<_>>>>();
+
+        let cache = Arc::new(
+            DefaultInMemoryCache::builder()
+                .resource_types(ResourceType::all())
+                .build(),
+        );
 
         Self {
-            commands,
-            prefix_command_handlers,
-            slash_command_handlers,
-            responder_handlers,
+            client,
+            cache,
+            shards,
         }
     }
-}
 
-fn extract_command_name(command: &CreateCommand) -> String {
-    let serialized = serde_json::to_value(command).unwrap_or_default();
-
-    if let Some(name) = serialized.get("name").and_then(|n| n.as_str()) {
-        return name.to_string();
+    pub async fn run(&mut self) {
+        let mut set = JoinSet::new();
+        for shard in self.shards.iter() {
+            set.spawn(App::shard_handle(
+                shard.clone(),
+                self.cache.clone(),
+                self.client.clone(),
+            ));
+        }
+        while let Some(res) = set.join_next().await {
+            match res {
+                Ok(_) => log("Shard finished successfully."),
+                Err(e) => error(&format!("{:?}", e)),
+            }
+        }
     }
 
-    "unknown_command".to_string()
+    pub async fn shard_handle(
+        shard: Arc<Mutex<Shard>>,
+        cache: Arc<InMemoryCache>,
+        client: Arc<Client>,
+    ) {
+        loop {
+            let mut locked_shard = shard.lock().await;
+
+            while let Some(item) = locked_shard.next_event(EventTypeFlags::all()).await {
+                let Ok(event) = item else {
+                    error(&format!("Error receiving event\n└ {:?}", item.unwrap_err()));
+
+                    continue;
+                };
+
+                // Update the cache with the event.
+                cache.update(&event);
+
+                tokio::spawn(App::handle_event(
+                    shard.clone(),
+                    Arc::clone(&client),
+                    Arc::clone(&cache),
+                    event,
+                ));
+            }
+        }
+    }
+
+    async fn handle_event(
+        shard: Arc<Mutex<Shard>>,
+        client: Arc<Client>,
+        cache: Arc<InMemoryCache>,
+        event: Event,
+    ) {
+        if let Some(callback) = HANDLERS.event_handlers.get(&event.kind()) {
+            if let Err(err) = callback.run(shard, client, cache, event).await {
+                error(&format!("Event error!\n└ {:?}", err));
+            }
+            return;
+        }
+
+        match event {
+            Event::InteractionCreate(interaction) => {
+                if let Some(data) = &interaction.data {
+                    match data {
+                        InteractionData::ApplicationCommand(command) => {
+                            if let Some(callback) =
+                                HANDLERS.slash_command_handlers.get(command.name.as_str())
+                            {
+                                if let Err(err) = callback.run(shard, client, cache, &interaction, command).await
+                                {
+                                    error(&format!("Application command error!\n└ {:?}", err));
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
 }

@@ -1,3 +1,6 @@
+mod age;
+mod moderate;
+
 use crate::discord::*;
 
 pub fn prefix_commands() -> Vec<Box<dyn PrefixCommandHandler + Send + Sync>> {
@@ -10,7 +13,7 @@ pub fn prefix_commands() -> Vec<Box<dyn PrefixCommandHandler + Send + Sync>> {
 
 pub fn slash_commands() -> Vec<Box<dyn SlashCommandHandler + Send + Sync>> {
     let commands: Vec<Box<dyn SlashCommandHandler + Send + Sync>> = vec![
-        //Box::new(Age),
+        Box::new(age::Age),
     ];
 
     commands

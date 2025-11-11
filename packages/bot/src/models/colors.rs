@@ -5,10 +5,14 @@ where
     D: serde::Deserializer<'de>,
 {
     let s: &str = Deserialize::deserialize(deserializer)?;
-    u32::from_str_radix(s.trim_start_matches("0x"), 16)
+    u32::from_str_radix(s.trim_start_matches("#"), 16)
         .map_err(serde::de::Error::custom)
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Constants {
+    pub colors: Colors
+}
 
 #[derive(Clone, Serialize, Deserialize)]
 #[serde(rename = "colors")]
