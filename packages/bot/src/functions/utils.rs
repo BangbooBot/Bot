@@ -4,9 +4,9 @@ pub mod global;
 pub mod interaction;
 pub mod loggers;
 pub mod skia;
+mod filters;
 
 pub use cdn::*;
-use components::*;
 pub use global::*;
 pub use interaction::*;
 pub use loggers::*;

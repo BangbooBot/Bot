@@ -1,10 +1,7 @@
 use crate::{discord::*, functions::*};
 use colored::Colorize;
-use std::{error::Error, sync::Arc};
-use tokio::sync::Mutex;
-use twilight_cache_inmemory::InMemoryCache;
-use twilight_gateway::{Event, EventType, Shard};
-use twilight_http::Client as HttpClient;
+use std::error::Error;
+use twilight_gateway::{Event, EventType};
 use twilight_model::gateway::payload::outgoing::UpdatePresence;
 use twilight_model::gateway::presence::{Activity, ActivityType, Status};
 
@@ -16,13 +13,7 @@ impl EventHandler for Ready {
         EventType::Ready
     }
 
-    async fn run(
-        &self,
-        shard: Arc<Mutex<Shard>>,
-        http: Arc<HttpClient>,
-        cache: Arc<InMemoryCache>,
-        event: Event,
-    ) -> Result<(), Box<dyn Error + Send + Sync>> {
+    async fn run(&self, ctx: Context, event: Event) -> Result<(), Box<dyn Error + Send + Sync>> {
         let ready = match event {
             Event::Ready(e) => e,
             _ => return Ok(()),
@@ -32,29 +23,34 @@ impl EventHandler for Ready {
 
         let app_id = ready.application.id;
         let commands = HANDLERS
-            .slash_command_handlers
+            .app_command_handlers
             .values()
             .map(|val| val.command())
             .collect::<Vec<_>>();
 
-        let res = http
+        let res = ctx
+            .http
             .interaction(app_id)
             .set_global_commands(&commands)
             .await;
 
         match res {
             Ok(_) => {
-                success(&format!(
-                    "└ {} command(s) successfully registered globally!",
-                    commands.len()
-                )
-                .bright_green());
-                for command in commands {
-                    success(&format!(
-                        "{{/}} Slash command > {} ✓",
-                        command.name.as_str().bright_blue()
+                success(
+                    &format!(
+                        "└ {} command(s) successfully registered globally!",
+                        commands.len()
                     )
-                    .bright_green());
+                    .bright_green(),
+                );
+                for command in commands {
+                    success(
+                        &format!(
+                            "{{/}} Slash command > {} ✓",
+                            command.name.as_str().bright_blue()
+                        )
+                        .bright_green(),
+                    );
                 }
             }
             Err(err) => {
@@ -87,9 +83,9 @@ impl EventHandler for Ready {
         };
 
         if let Ok(presence) = UpdatePresence::new(vec![activity], false, None, Status::Online) {
-            shard.lock().await.command(&presence);
+            ctx.shard.lock().await.command(&presence);
         }
-        
+
         Ok(())
     }
 }

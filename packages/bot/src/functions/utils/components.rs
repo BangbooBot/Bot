@@ -1,4 +1,3 @@
-use crate::discord::*;
 use crate::functions::*;
 use twilight_http::Client;
 use twilight_model::gateway::payload::incoming::InteractionCreate;

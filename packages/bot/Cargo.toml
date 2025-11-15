@@ -22,7 +22,7 @@ config = { version = "0.15" }
 discloud-rs = { git = "https://github.com/Cesio137/discloud-rs.git", branch = "dev" }
 dotenvy = { version = "0.15" }
 genai = { version = "0.4" }
-glob = { version = "0.3" }
+# glob = { version = "0.3" }
 once_cell = { version = "1.21" }
 regex = { version = "1.12" }
 reqwest = { version = "0.12" }
@@ -30,7 +30,5 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = { version = "1.0" }
 skia-safe = { version = "0.90", features = ["textlayout", "gl"] }
 tokio = { version = "1.48", features = ["macros", "rt-multi-thread", "signal"] }
-identify = { version = "0.9" }
-chrono = { version = "0.4" }
+chrono = "0.4.42"
 log = "0.4.28"
-tracing = "0.1.41"

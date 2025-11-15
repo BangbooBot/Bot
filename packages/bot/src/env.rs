@@ -1,9 +1,9 @@
-use std::collections::HashMap;
+use crate::functions::*;
 use dotenvy::dotenv;
 use once_cell::sync::Lazy;
-use std::env;
 use serde::Deserialize;
-use crate::functions::*;
+use std::collections::HashMap;
+use std::env;
 
 #[derive(Deserialize)]
 pub struct EnvSchema {
@@ -12,10 +12,12 @@ pub struct EnvSchema {
 
 pub static ENV: Lazy<EnvSchema> = Lazy::new(|| {
     if let Err(err) = dotenv() {
-        error(&format!("Failed to load .env file\n└{}", err));
-        panic!();
+        if let Err(e) = dotenvy::from_filename("./packages/bot/.env") {
+            error(&format!("Failed to load .env file\n└{}", err));
+            panic!();
+        }
     }
-    
+
     let env_vars = env::vars().collect::<HashMap<String, String>>();
 
     let env: EnvSchema = match serde_json::to_string(&env_vars) {

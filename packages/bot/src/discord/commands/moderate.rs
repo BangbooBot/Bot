@@ -1,40 +1,39 @@
 use crate::constants::*;
 use crate::discord::*;
 use crate::functions::*;
+use crate::menus::*;
 use async_trait::async_trait;
-use std::{error::Error, sync::Arc};
-use tokio::sync::Mutex;
-use twilight_cache_inmemory::InMemoryCache;
-use twilight_gateway::Shard;
-use twilight_http::Client;
+use std::error::Error;
+use twilight_model::channel::message::MessageFlags;
 use twilight_model::{
     application::{
         command::{Command, CommandOption, CommandType},
-        interaction::{
-            InteractionContextType,
-            application_command::{CommandData, CommandOptionValue},
-        },
+        interaction::{application_command::CommandOptionValue, InteractionContextType},
     },
-    channel::message::MessageFlags,
     gateway::payload::incoming::InteractionCreate,
 };
-use twilight_util::{
-    builder::command::{CommandBuilder, UserBuilder},
-    snowflake::Snowflake,
-};
+use twilight_util::builder::command::CommandBuilder;
+use twilight_util::builder::command::StringBuilder;
 
 pub struct Moderate;
 
 #[async_trait]
 impl SlashCommandHandler for Moderate {
     fn command(&self) -> Command {
-        let user_opt = CommandOption::from(UserBuilder::new(
-            "discord",
-            "Displays your account creation date.",
-        ));
+        let user_opt = CommandOption::from(
+            StringBuilder::new("action", "Select an action.")
+                .required(true)
+                .choices([
+                    ("delete messages", "delete_messages"),
+                    ("timeout", "timeout"),
+                    ("kick", "kick"),
+                    ("ban", "ban"),
+                    ("unban", "unban"),
+                ]),
+        );
         CommandBuilder::new(
-            "age",
-            "Displays your or another user's account creation date.",
+            "moderate",
+            "Equality before the law is the cornerstone of justice ⚖.",
             CommandType::ChatInput,
         )
         .option(user_opt)
@@ -44,13 +43,72 @@ impl SlashCommandHandler for Moderate {
 
     async fn run(
         &self,
-        shard: Arc<Mutex<Shard>>,
-        http: Arc<Client>,
-        cache: Arc<InMemoryCache>,
+        ctx: Context,
         interaction: &Box<InteractionCreate>,
-        command_data: &Box<CommandData>,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
-        
+        let command_data = get_app_command_data(interaction).unwrap();
+
+        let options = &command_data.options[0];
+        let CommandOptionValue::String(action) = &options.value else {
+            reply_with_embed(
+                ctx,
+                interaction,
+                MessageFlags::EPHEMERAL,
+                COLORS.danger,
+                "Error trying to access unknown option.",
+            )
+            .await;
+            return Ok(());
+        };
+
+        match action.as_str() {
+            "delete_messages" => {
+                delete_message_modal(ctx, interaction).await;
+            }
+            "timeout" => {
+                timeout_modal(ctx, interaction).await;
+            }
+            "kick" => {
+                kick_modal(ctx, interaction).await;
+            }
+            "ban" => {
+                ban_modal(ctx, interaction).await;
+            }
+            "unban" => {
+                /*
+                if !defer_reply(&ctx, interaction, true).await {
+                    return Ok(());
+                }*/
+
+                let Some(guild) = &interaction.guild else {
+                    error("Error trying to access unknown guild");
+                    return Ok(());
+                };
+                let Some(guild_id) = guild.id else {
+                    error("Error trying to access unknown id from guild");
+                    return Ok(());
+                };
+                let bans = match ctx.http.bans(guild_id).await {
+                    Ok(bans) => bans.model().await?,
+                    Err(err) => return Err(Box::new(err)),
+                };
+
+                if bans.len() <= 0 {
+                    reply_with_embed(
+                        ctx,
+                        interaction,
+                        MessageFlags::EPHEMERAL,
+                        COLORS.danger,
+                        "There is no banned users on this guild.",
+                    )
+                    .await;
+                    return Ok(());
+                }
+
+                unban_modal(ctx, interaction, &bans).await;
+            }
+            _ => {}
+        }
 
         Ok(())
     }

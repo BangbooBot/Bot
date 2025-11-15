@@ -1,17 +1,16 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 fn hex_to_u32<'de, D>(deserializer: D) -> Result<u32, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
     let s: &str = Deserialize::deserialize(deserializer)?;
-    u32::from_str_radix(s.trim_start_matches("#"), 16)
-        .map_err(serde::de::Error::custom)
+    u32::from_str_radix(s.trim_start_matches("#"), 16).map_err(serde::de::Error::custom)
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Constants {
-    pub colors: Colors
+    pub colors: Colors,
 }
 
 #[derive(Clone, Serialize, Deserialize)]

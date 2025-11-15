@@ -2,6 +2,7 @@ mod constants;
 mod discord;
 mod env;
 mod functions;
+mod menus;
 mod models;
 
 #[cfg(target_env = "gnu")]
@@ -9,8 +10,8 @@ use crate::functions::configure_malloc;
 
 use crate::discord::*;
 use crate::functions::*;
-use twilight_model::gateway::Intents;
 use std::str::FromStr;
+use twilight_model::gateway::Intents;
 
 #[tokio::main]
 async fn main() {
@@ -23,7 +24,7 @@ async fn main() {
         | Intents::MESSAGE_CONTENT
         | Intents::GUILD_MEMBERS
         | Intents::GUILD_MODERATION;
-        
+
     let mut app = App::bootstrap(intents).await;
     app.run().await;
 }

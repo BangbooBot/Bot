@@ -1,16 +1,16 @@
 use crate::constants::*;
 use crate::functions::*;
 use skia_safe::{EncodedImageFormat, ISize, Point};
+use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 use twilight_gateway::EventType;
 use twilight_http::Client;
 use twilight_model::guild::Member;
 use twilight_model::http::attachment::Attachment;
-use twilight_model::id::Id;
 use twilight_model::id::marker::ChannelMarker;
+use twilight_model::id::Id;
 use twilight_model::user::User;
 use twilight_util::snowflake::Snowflake;
-use std::sync::Arc;
-use std::time::{SystemTime, UNIX_EPOCH};
 
 pub async fn global_message(
     http: Arc<Client>,
@@ -22,8 +22,7 @@ pub async fn global_message(
     // Fetch avatar
     let mut user_avatar: Vec<u8> = vec![];
 
-    if let Some(avatar_hash) = user.avatar {
-        let avatar_url = display_avatar_url(user.id.get(), &avatar_hash.to_string(), 512);
+    if let Some(avatar_url) = display_avatar_url(&user, 512) {
         if let Ok(res) = reqwest::get(avatar_url).await {
             if let Ok(bytes) = res.bytes().await {
                 user_avatar = bytes.to_vec();
@@ -58,6 +57,7 @@ pub async fn global_message(
         }
         EventType::MemberRemove => CARD_LEFT,
         EventType::BanAdd => CARD_MOD,
+        _ => CARD_LEFT,
     };
 
     let mut data = vec![];
@@ -145,7 +145,8 @@ pub async fn global_message(
     }
     let attachment = Attachment::from_bytes("Card.png".to_string(), data, 0);
 
-    let res = http.create_message(channel_id.clone())
+    let res = http
+        .create_message(channel_id.clone())
         .attachments(&[attachment])
         .content(&utc)
         .await;
@@ -159,7 +160,7 @@ pub async fn global_message(
 }
 /*
 pub async fn global_boost(ctx: &Context, user: &User, guild_id: &GuildId) {
-    
+
     let color = Colour::new(COLORS.nitro);
     let avatar_url = user.avatar_url().unwrap_or_default();
     let username = user.global_name.clone().unwrap_or(user.name.clone());
@@ -197,6 +198,6 @@ pub async fn global_boost(ctx: &Context, user: &User, guild_id: &GuildId) {
     if let Err(err) = channel.send_message(ctx.http(), payload).await {
         error(&format!("Failed to send message!\n└ {:?}", err));
     }
-    
+
 }
 */

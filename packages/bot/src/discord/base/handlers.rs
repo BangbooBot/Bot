@@ -6,8 +6,8 @@ use twilight_gateway::EventType;
 pub struct Handler {
     pub event_handlers: HashMap<EventType, Box<dyn EventHandler + Send + Sync>>,
     pub prefix_command_handlers: HashMap<String, Box<dyn PrefixCommandHandler + Send + Sync>>,
-    pub slash_command_handlers: HashMap<String, Box<dyn SlashCommandHandler + Send + Sync>>,
-    pub responder_handlers: HashMap<String, Box<dyn ResponderHandler + Send + Sync>>,
+    pub app_command_handlers: HashMap<String, Box<dyn SlashCommandHandler + Send + Sync>>,
+    pub modal_handlers: HashMap<String, Box<dyn ModalHandler + Send + Sync>>,
 }
 
 pub static HANDLERS: Lazy<Handler> = Lazy::new(|| {
@@ -45,7 +45,7 @@ pub static HANDLERS: Lazy<Handler> = Lazy::new(|| {
     Handler {
         prefix_command_handlers,
         event_handlers,
-        slash_command_handlers,
-        responder_handlers,
+        app_command_handlers: slash_command_handlers,
+        modal_handlers: responder_handlers,
     }
 });

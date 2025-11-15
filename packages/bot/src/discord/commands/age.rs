@@ -2,17 +2,13 @@ use crate::constants::*;
 use crate::discord::*;
 use crate::functions::*;
 use async_trait::async_trait;
-use std::{error::Error, sync::Arc};
-use tokio::sync::Mutex;
-use twilight_cache_inmemory::InMemoryCache;
-use twilight_gateway::Shard;
-use twilight_http::Client;
+use std::error::Error;
 use twilight_model::{
     application::{
         command::{Command, CommandOption, CommandType},
         interaction::{
+            application_command::CommandOptionValue,
             InteractionContextType,
-            application_command::{CommandData, CommandOptionValue},
         },
     },
     channel::message::MessageFlags,
@@ -28,10 +24,7 @@ pub struct Age;
 #[async_trait]
 impl SlashCommandHandler for Age {
     fn command(&self) -> Command {
-        let user_opt = CommandOption::from(UserBuilder::new(
-            "user",
-            "Select an user",
-        ));
+        let user_opt = CommandOption::from(UserBuilder::new("user", "Select an user"));
         CommandBuilder::new(
             "age",
             "Displays your or another user's account creation date.",
@@ -44,12 +37,11 @@ impl SlashCommandHandler for Age {
 
     async fn run(
         &self,
-        shard: Arc<Mutex<Shard>>,
-        http: Arc<Client>,
-        cache: Arc<InMemoryCache>,
+        ctx: Context,
         interaction: &Box<InteractionCreate>,
-        command_data: &Box<CommandData>,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
+        let command_data = get_app_command_data(interaction).unwrap();
+
         let Some(guild_id) = &interaction.guild_id else {
             error("Guild id not found.");
             return Ok(());
@@ -68,7 +60,7 @@ impl SlashCommandHandler for Age {
         }
 
         if let Some(uid) = user_id {
-            if let Some(user) = cache.user(uid.clone()) {
+            if let Some(user) = ctx.cache.user(uid.clone()) {
                 name = user.global_name.as_ref().unwrap_or(&user.name).clone();
                 timestamp = uid.timestamp() / 1000;
             }
@@ -85,6 +77,7 @@ impl SlashCommandHandler for Age {
 
         if name.is_empty() {
             error("Error trying to access unknown user.");
+            reply_with_embed(ctx, interaction, MessageFlags::empty(), COLORS.danger, "").await;
             return Ok(());
         }
 
@@ -102,7 +95,7 @@ impl SlashCommandHandler for Age {
             );
         }
 
-        reply_with_embed(http, interaction, MessageFlags::empty(), COLORS.green, &age).await;
+        reply_with_embed(ctx, interaction, MessageFlags::empty(), COLORS.green, &age).await;
 
         Ok(())
     }
