@@ -1,0 +1,12 @@
+/*
+import { getQueueMetadata } from "#functions";
+import { useMainPlayer } from "discord-player";
+
+
+const mainPlayer = useMainPlayer();
+
+mainPlayer.events.on("playerStart", (queue, track) => {
+    //const { client, channel, voiceChannel } = getQueueMetadata(queue);
+
+});
+*/

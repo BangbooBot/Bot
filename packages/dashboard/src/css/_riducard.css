@@ -21,7 +21,7 @@
 }
 
 .card {
-    @apply mx-4 py-4 px-4 rounded-md flex flex-col gap-y-2;
+    @apply md:w-2xl mx-14 py-4 px-4 rounded-md flex flex-col gap-y-2;
     
 }
 
@@ -30,7 +30,7 @@
 }
 
 .card-section-owner h1 {
-    @apply mx-2 font-sans text-[11px] font-extrabold;
+    @apply mx-2 font-sans text-[20px] font-extrabold;
 }
 
 .card-section-title {
@@ -38,15 +38,15 @@
 }
 
 .card-section-title h1 {
-    @apply text-2xl;
+    @apply text-8xl;
 }
 
 .card-section-intro {
-    @apply py-1 px-2 flex flex-col justify-between gap-2 rounded-md;
+    @apply py-1 px-2 flex justify-between gap-2 rounded-md;
 }
 
 .card-section-intro > div:nth-child(1) {
-    @apply relative h-fit flex justify-start rounded-md border-4;
+    @apply relative w-lg h-fit flex justify-start rounded-md border-4;
 }
 
 .card-section-intro > div:nth-child(1) img {
@@ -62,15 +62,15 @@
 }
 
 .card-section-intro > div:nth-child(2) {
-    @apply flex flex-col justify-start items-center gap-2;
+    @apply flex flex-col justify-start items-start gap-2;
 }
 
 .card-section-intro > div:nth-child(2) h1 {
-    @apply wrap-break-word text-justify text-2xl leading-8;
+    @apply wrap-break-word text-justify text-[32px] leading-8;
 }
 
 .card-section-intro > div:nth-child(2) p {
-    @apply wrap-break-word text-justify text-sm;
+    @apply wrap-break-word text-justify max-w-xl;
 }
 
 .card-section-info {
@@ -78,23 +78,23 @@
 }
 
 .card-section-info > div:nth-child(1) {
-    @apply flex flex-wrap justify-center gap-2;
+    @apply flex justify-between gap-16;
 }
 
 .card-section-info > div:nth-child(1) div {
-    @apply flex flex-col items-center gap-y-1 min-w-18;
+    @apply flex flex-col items-center gap-y-2;
 }
 
 .card-section-info > div:nth-child(1) div img {
-    @apply w-8;
+    @apply w-11;
 }
 
 .card-section-info > div:nth-child(1) div h5 {
-    @apply text-sm font-semibold;
+    @apply text-[1rem] font-semibold;
 }
 
 .card-section-info > div:nth-child(2) {
-    @apply flex justify-between gap-4;
+    @apply flex justify-between gap-16;
 }
 
 .card-section-info > div:nth-child(2) div {
@@ -102,19 +102,19 @@
 }
 
 .card-section-info > div:nth-child(2) div div {
-    @apply min-w-18 h-8 px-2 rounded-xl flex justify-center;
+    @apply w-22 h-12 px-2 rounded-xl flex justify-center;
 }
 
 .card-section-info > div:nth-child(2) div div p {
-    @apply text-sm font-bold;
+    @apply font-bold;
 }
 
 .card-section-info > div:nth-child(2) div h5 {
-    @apply text-sm font-semibold;
+    @apply text-[1rem] font-semibold;
 }
 
 .card-section-links {
-    @apply flex mt-2 justify-between items-center;
+    @apply flex mt-4 justify-between items-center;
 }
 
 .card-section-links div:nth-child(1) a {
