@@ -1,3 +1,14 @@
 import { bootstrap } from "#base";
+import { Client } from "discord.js";
 
-export const client = await bootstrap({ meta: import.meta });
+let bootstrapClient!: Client<boolean>;
+bootstrap({
+    meta: import.meta, 
+    async beforeLoad(client) {
+        bootstrapClient = client;
+    },
+});
+
+export const client = bootstrapClient;
+
+

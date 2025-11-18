@@ -1,37 +1,37 @@
 //
 import { client } from "#index";
-import { BaseExtractor, ExtractorInfo, Track, SearchQueryType, ExtractorSearchContext, GuildQueueHistory, Player } from "discord-player";
+import { BaseExtractor, ExtractorInfo, Track, SearchQueryType, ExtractorSearchContext, GuildQueueHistory, Player, ExtractorStreamable } from "discord-player";
+import { env } from "#env";
 import { Readable } from "stream";
 import z from "zod";
 
-declare module "discord.js" {
-	interface Client {
-		// Add your properties
-		player: Player;
-	}
-}
-
-const URI = "https://ytapi.mubilop.com";
 const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
 
+declare module "discord.js" {
+    interface Client {
+        // Add your properties
+        player: Player;
+    }
+}
+
 const videoSchema = z.object({
-  title: z.string(),
-  author: z.string(),
-  length: z.number(),
-  views: z.number(),
-  thumbnail_url: z.string(),
+    title: z.string(),
+    author: z.string(),
+    length: z.number(),
+    views: z.number(),
+    thumbnail_url: z.string(),
 });
 
 //type Video = z.infer<typeof videoSchema>;
 
 const querySchema = z.array(z.object({
-  id: z.string(),
-  title: z.string(),
-  uploader: z.string(),
-  duration: z.number(),
-  views_count: z.number(),
-  thumbnail: z.string().nullable(),
-  url: z.string()
+    id: z.string(),
+    title: z.string(),
+    uploader: z.string(),
+    duration: z.number(),
+    views_count: z.number().optional(),
+    thumbnail: z.string().nullable(),
+    url: z.string()
 }));
 
 //type Query = z.infer<typeof querySchema.element>;
@@ -51,14 +51,14 @@ export class MubiExtractor extends BaseExtractor {
     }
 
     override async validate(query: string, type?: SearchQueryType | null): Promise<boolean> {
-        if (type === "YOUTUBE_VIDEO" || type === "youtubeVideo") {
+        if (type === "youtubeVideo") {
             if (query.startsWith("https://")) {
                 return query.match(regex) !== null;
             }
             return !query.startsWith("https://");
         }
 
-        if (type === "YOUTUBE_SEARCH" || type === "youtubeSearch") {
+        if (type === "youtubeSearch") {
             return !query.startsWith("https://");
         }
 
@@ -74,7 +74,7 @@ export class MubiExtractor extends BaseExtractor {
         };
 
         try {
-            if (type === "YOUTUBE_VIDEO" || type === "youtubeVideo") {
+            if (type === "youtubeVideo") {
                 let videoId = "";
                 if (is_url) {
                     const match = query.match(regex);
@@ -86,7 +86,7 @@ export class MubiExtractor extends BaseExtractor {
                     videoId = query;
                 }
 
-                const res = await fetch(`${URI}/video/${videoId}/info`);
+                const res = await fetch(`${env.MUBILOP_URI}/video/${videoId}/info`);
                 if (!res.ok) {
                     console.error(`Failed to fetch video info for ID: ${videoId}, Status: ${res.status}`);
                     return info;
@@ -100,7 +100,7 @@ export class MubiExtractor extends BaseExtractor {
                 }
 
                 const { data } = videoInfo;
-                const track = new Track(client.client.player, {
+                const track = new Track(client.player, {
                     title: data.title,
                     author: data.author,
                     duration: data.length.toString(),
@@ -109,9 +109,9 @@ export class MubiExtractor extends BaseExtractor {
                     url: `https://www.youtube.com/watch?v=${videoId}`
                 });
                 info.tracks.push(track);
-            } else if ((type === "YOUTUBE_SEARCH" || type === "youtubeSearch") && !is_url) {
+            } else if ((type === "youtubeSearch") && !is_url) {
                 const encodedQuery = encodeURIComponent(query);
-                const res = await fetch(`${URI}/search?query=${encodedQuery}&max_results=1`);
+                const res = await fetch(`${env.MUBILOP_URI}/search?query=${encodedQuery}&max_results=1`);
 
                 if (!res.ok) {
                     console.error(`Failed to fetch search results for query: ${query}, Status: ${res.status}`);
@@ -131,7 +131,7 @@ export class MubiExtractor extends BaseExtractor {
                     return info;
                 }
 
-                const infoRes = await fetch(`${URI}/video/${queryData.id}/info`);
+                const infoRes = await fetch(`${env.MUBILOP_URI}/video/${queryData.id}/info`);
                 if (!infoRes.ok) {
                     console.error(`Failed to fetch video info for search result ID: ${queryData.id}, Status: ${infoRes.status}`);
                     return info;
@@ -145,13 +145,14 @@ export class MubiExtractor extends BaseExtractor {
                 }
 
                 const { data } = videoInfo;
-                const track = new Track(client.client.player, {
+                const track = new Track(client.player, {
                     title: data.title,
                     author: data.author,
                     duration: data.length.toString(),
                     views: data.views,
                     thumbnail: data.thumbnail_url,
-                    url: `https://www.youtube.com/watch?v=${queryData.id}`
+                    url: `https://www.youtube.com/watch?v=${queryData.id}`,
+
                 });
                 info.tracks.push(track);
             }
@@ -162,12 +163,27 @@ export class MubiExtractor extends BaseExtractor {
         return info;
     }
 
-    // discord-player calls this method when it wants you to stream a track. You can either return raw url pointing at a stream or node.js readable stream object. Note: this method wont be called if onBeforeCreateStream was used. It is called with discord-player track object.
-    override async stream(info: Track): Promise<Readable | string> {
-        return `${URI}/video/${info.id}?audio_only=true&format_type=mp3`;
+    override async stream(info: Track): Promise<ExtractorStreamable> {
+        try {
+            const id_match = info.url.match(regex);
+            if (!id_match || !id_match[1]) {
+                throw new Error("Failed to extract video id from url");
+            }
+            const url_stream = `${env.MUBILOP_URI}/video/${id_match[1]}?audio_only=true&format_type=mp3`;
+
+            const response = await fetch(url_stream);
+            if (!response.ok || !response.body) {
+                throw new Error(`Failed to fetch youtube video by id.\nStatus: ${response.status}`);
+            }
+
+            const readable = Readable.fromWeb(response.body as any);
+            return readable;
+        } catch (e: any) {
+            console.error(`MubiExtractor error\n${e.message}`);
+            return "";
+        }
     }
 
-    // discord-player calls this method when it wants some tracks for autoplay mode.
     override async getRelatedTracks(_track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {
         if (history.isEmpty()) return this.createResponse(null);
 

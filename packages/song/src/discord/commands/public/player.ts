@@ -26,8 +26,8 @@ createCommand({
                     description: "Search engine(optional).",
                     type: ApplicationCommandOptionType.String,
                     choices: [
-                        { name: "youtubeVideo", value: "youtubeVideo" },
-                        { name: "youtubeSearch", value: "youtubeSearch" }
+                        { name: "Youtube Video", value: "youtubeVideo" },
+                        { name: "Youtube Search", value: "youtubeSearch" }
                     ],
                 },
             ],
