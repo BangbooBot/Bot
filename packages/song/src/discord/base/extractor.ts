@@ -2,7 +2,6 @@
 import { client } from "#index";
 import { BaseExtractor, ExtractorInfo, Track, SearchQueryType, ExtractorSearchContext, GuildQueueHistory, Player, ExtractorStreamable } from "discord-player";
 import { env } from "#env";
-import { Readable } from "stream";
 import z from "zod";
 
 const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
@@ -164,24 +163,12 @@ export class MubiExtractor extends BaseExtractor {
     }
 
     override async stream(info: Track): Promise<ExtractorStreamable> {
-        try {
-            const id_match = info.url.match(regex);
-            if (!id_match || !id_match[1]) {
-                throw new Error("Failed to extract video id from url");
-            }
-            const url_stream = `${env.MUBILOP_URI}/video/${id_match[1]}?audio_only=true&format_type=mp3`;
-
-            const response = await fetch(url_stream);
-            if (!response.ok || !response.body) {
-                throw new Error(`Failed to fetch youtube video by id.\nStatus: ${response.status}`);
-            }
-
-            const readable = Readable.fromWeb(response.body as any);
-            return readable;
-        } catch (e: any) {
-            console.error(`MubiExtractor error\n${e.message}`);
+        const id_match = info.url.match(regex);
+        if (!id_match || !id_match[1]) {
             return "";
         }
+
+        return `${env.MUBILOP_URI}/video/${id_match[1]}?quality=480p`;
     }
 
     override async getRelatedTracks(_track: Track, history: GuildQueueHistory): Promise<ExtractorInfo> {

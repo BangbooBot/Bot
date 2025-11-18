@@ -11,8 +11,6 @@ import { BaseEventHandlers } from "./events/handlers.js";
 import { BaseResponderHandlers } from "./responders/handlers.js";
 import { glob } from "node:fs/promises";
 import { join } from "node:path";
-import { Player } from "discord-player";
-import { MubiExtractor } from "./extractor.js";
 
 interface BootstrapOptions extends Partial<ClientOptions> {
     meta: ImportMeta;
@@ -27,10 +25,7 @@ export async function bootstrap(options: BootstrapOptions){
         intents: options.intents ?? CustomItents.All,
         partials: options.partials ?? CustomPartials.All,
         failIfNotExists: options.failIfNotExists ?? false,
-    });
-
-    client.player = new Player(client as never);
-    client.player.extractors.register(MubiExtractor, {});
+    });    
 
     const app = Constatic.getInstance();
 

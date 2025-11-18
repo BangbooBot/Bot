@@ -1,6 +1,6 @@
 import { createCommand } from "#base";
 import { createQueueMetadata, res } from "#functions";
-import { brBuilder } from "@magicyan/discord";
+import { brBuilder, createEmbed } from "@magicyan/discord";
 import { QueryType, SearchQueryType } from "discord-player";
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionContextType } from "discord.js";
 
@@ -67,21 +67,27 @@ createCommand({
     ],
     async run(interaction) {
         const { options, member, guild, channel, client } = interaction;
-        if (!member.voice.channel)
-            return interaction.reply(
-                res.danger(`${emojis.static.close} You are not connected to a voice channel!`)
+        if (!member.voice.channel) {
+            interaction.reply(
+                res.danger(`<:icons_x:${emojis.static.icons_x}> You are not connected to a voice channel!`)
             );
-        if (!channel)
-            return interaction.reply(
-                res.danger(`${emojis.static.close} It is not possible to use this command on this channel.`)
+            return;
+        }
+        if (!channel) {
+            interaction.reply(
+                res.danger(`<:icons_x:${emojis.static.icons_x}> It is not possible to use this command on this channel.`)
             );
+            return;
+        }
 
         await interaction.deferReply();
         const queue = client.player.queues.cache.get(guild.id);
-        if (options.getSubcommand(true) !== "add" && !queue)
-            return interaction.editReply(
-                res.danger(`${emojis.static.close} There is no track on the queue!`)
+        if (options.getSubcommand(true) !== "add" && !queue) {
+            interaction.editReply(
+                res.danger(`<:icons_x:${emojis.static.icons_x}> There is no track on the queue!`)
             );
+            return;
+        }
 
         const voiceChannel = member.voice.channel;
         const queueMetadata = createQueueMetadata({ channel, client, guild, voiceChannel });
@@ -106,59 +112,60 @@ createCommand({
                     if (searchResult.playlist) {
                         const { tracks, title, url } = searchResult.playlist;
                         display.push(
-                            `Added ${tracks.length} tracks from playlist [${title}](${url}).`,
+                            `Added ${tracks.length} tracks from playlist **[${title}](${url})**.`,
                             ...tracks.map((track) => `${track.title}`).slice(0, 8),
                             "..."
                         );
                     } else {
                         display.push(
-                            `${queue?.size ? "Added to queue. " : "Playing now! "} ${track.title}`
+                            `${queue?.size ? "Added to queue. " : "Playing now! "} **[${track.title}](${track.url})**`
                         );
                     }
-                    return interaction.editReply(
-                        res.success(`${emojis.static.check} ${brBuilder(display)}`)
+                    
+                    interaction.editReply(
+                        res.success(`<:icons_verified:${emojis.static.icons_verified}> ${brBuilder(display)}`)
                     );
                 } catch (e) {
-                    return interaction.editReply(
-                        res.danger(`${emojis.static.close} Error when trying to play the track.\n${e}`)
+                    interaction.editReply(
+                        res.danger(`<:icons_x:${emojis.static.icons_x}> Error when trying to play the track.\n${e}`)
                     );
                 }
                 break;
             case "pause":
                 if (!queue) {
                     interaction.editReply(
-                        res.danger(`${emojis.static.close} There is no queue!`)
+                        res.danger(`<:icons_x:${emojis.static.icons_x}> There is no queue!`)
                     );
                     return;
                 }
                 if (queue.node.isPaused()){
                     interaction.editReply(
-                        res.danger(`${emojis.static.close} The current track is already paused!`)
+                        res.danger(`<:icons_x:${emojis.static.icons_x}> The current track is already paused!`)
                     );
                     return;
                 }
                 queue?.node.pause();
                 interaction.editReply(
-                    res.success(`${emojis.static.check} Current track has been paused!`)
+                    res.success(`<:icons_verified:${emojis.static.icons_verified}> Current track has been paused!`)
                 );
                 break;
             case "resume":
                 if (!queue?.node.isPaused()) {
                     interaction.editReply(
-                        res.danger(`${emojis.static.close} The current track is not paused!`)
+                        res.danger(`<:icons_x:${emojis.static.icons_x}> The current track is not paused!`)
                     );
                     return;
                 } 
                 queue.node.resume();
                 interaction.editReply(
-                    res.success(`${emojis.static.close} Current track has been resumed!`)
+                    res.success(`<:icons_verified:${emojis.static.icons_verified}> Current track has been resumed!`)
                 );
                 break;
             case "stop":
                 queue?.node.stop();
                 interaction.editReply(
                     res.success(
-                        `${emojis.static.check} Current track has been stopped and track list has been cleaned!`
+                        `<:icons_verified:${emojis.static.icons_verified}> Current track has been stopped and track list has been cleaned!`
                     )
                 );
                 break;
@@ -170,7 +177,7 @@ createCommand({
                 }
                 interaction.editReply(
                     res.success(
-                        `${emojis.static.check} ${skipAmount} ${
+                        `<:icons_verified:${emojis.static.icons_verified}> ${skipAmount} ${
                             skipAmount > 1 ? "tracks have been skipped!" : "track has been skipped!"
                         } `
                     )
