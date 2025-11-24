@@ -6,10 +6,7 @@ use std::error::Error;
 use twilight_model::{
     application::{
         command::{Command, CommandOption, CommandType},
-        interaction::{
-            application_command::CommandOptionValue,
-            InteractionContextType,
-        },
+        interaction::{application_command::CommandOptionValue, InteractionContextType},
     },
     channel::message::MessageFlags,
     gateway::payload::incoming::InteractionCreate,
@@ -24,7 +21,7 @@ pub struct Age;
 #[async_trait]
 impl SlashCommandHandler for Age {
     fn command(&self) -> Command {
-        let user_opt = CommandOption::from(UserBuilder::new("user", "Select an user"));
+        let user_opt = CommandOption::from(UserBuilder::new("user", "Select an user").build());
         CommandBuilder::new(
             "age",
             "Displays your or another user's account creation date.",
@@ -77,7 +74,6 @@ impl SlashCommandHandler for Age {
 
         if name.is_empty() {
             error("Error trying to access unknown user.");
-            reply_with_embed(ctx, interaction, MessageFlags::empty(), COLORS.danger, "").await;
             return Ok(());
         }
 
@@ -95,7 +91,7 @@ impl SlashCommandHandler for Age {
             );
         }
 
-        reply_with_embed(ctx, interaction, MessageFlags::empty(), COLORS.green, &age).await;
+        reply_with_embed(&ctx, interaction, MessageFlags::empty(), COLORS.green, &age).await;
 
         Ok(())
     }

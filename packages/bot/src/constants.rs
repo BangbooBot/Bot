@@ -1,3 +1,4 @@
+use config::{Config, File, FileFormat};
 use crate::models::*;
 use once_cell::sync::Lazy;
 
@@ -18,6 +19,19 @@ pub const CARD_LEFT: &[u8] = include_bytes!("../assets/cards/card-left.png");
 pub const CARD_MOD: &[u8] = include_bytes!("../assets/cards/card-mod.png");
 pub const CARD_NEW: &[u8] = include_bytes!("../assets/cards/card-new.png");
 
+// Discloud
+const DISCLOUDCONFIG: &str = include_str!("../discloud.config");
+pub static APPID: Lazy<String> = Lazy::new(|| {
+    let discloud = match Config::builder()
+        .add_source(File::from_str(DISCLOUDCONFIG, FileFormat::Ini))
+        .build()
+    {
+        Ok(config) => config,
+        Err(_) => return String::new(),
+    };
+    discloud.get("ID").unwrap_or_default()
+});
+
 // JSON
 const COLORSJSON: &str = include_str!("../data/colors.json");
 pub static COLORS: Lazy<Colors> = Lazy::new(|| {
@@ -27,3 +41,11 @@ pub static COLORS: Lazy<Colors> = Lazy::new(|| {
 
 const EMOJISJSON: &str = include_str!("../data/emojis.json");
 pub static EMOJIS: Lazy<Emojis> = Lazy::new(|| serde_json::from_str(&EMOJISJSON).unwrap());
+
+const FABJSON: &str = include_str!("../data/fab.json");
+pub static FAB: Lazy<Fab> = Lazy::new(|| serde_json::from_str(&FABJSON).unwrap());
+
+const GUILDJSON: &str = include_str!("../data/guild.json");
+pub static GUILD: Lazy<Guild> = Lazy::new(|| serde_json::from_str(&GUILDJSON).unwrap());
+
+

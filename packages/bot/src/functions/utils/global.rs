@@ -1,4 +1,5 @@
 use crate::constants::*;
+use crate::discord::Context;
 use crate::functions::*;
 use skia_safe::{EncodedImageFormat, ISize, Point};
 use std::sync::Arc;
@@ -10,6 +11,7 @@ use twilight_model::http::attachment::Attachment;
 use twilight_model::id::marker::ChannelMarker;
 use twilight_model::id::Id;
 use twilight_model::user::User;
+use twilight_util::builder::embed::{EmbedAuthorBuilder, EmbedBuilder, ImageSource};
 use twilight_util::snowflake::Snowflake;
 
 pub async fn global_message(
@@ -158,46 +160,36 @@ pub async fn global_message(
         ));
     }
 }
-/*
-pub async fn global_boost(ctx: &Context, user: &User, guild_id: &GuildId) {
 
-    let color = Colour::new(COLORS.nitro);
-    let avatar_url = user.avatar_url().unwrap_or_default();
+pub async fn global_boost(ctx: &Context, user: &User, channel_id: &Id<ChannelMarker>) {
+    let avatar_url = display_avatar_url(user, 256).unwrap_or(String::new());
     let username = user.global_name.clone().unwrap_or(user.name.clone());
     let description = format!(
         "**<a:boost:{}> <@${}> became a <@&${}>**\n\n🚀 Thanks for boosting the server!",
         &EMOJIS.animated.boost, user.id, &GUILD.roles.boosters
     );
 
-    let author = CreateEmbedAuthor::new(username.as_str()).icon_url(&avatar_url);
-    let embed = CreateEmbed::new()
-        .color(color)
-        .author(author)
-        .description(description)
-        .thumbnail(&avatar_url);
+    let mut embed = EmbedBuilder::new()
+        .color(COLORS.nitro)
+        .description(description);
 
-    let channel = match guild_id.channels(ctx.http()).await {
-        Ok(channels) => {
-            let id = ChannelId::new(GUILD.channels.announcement);
-            if let Some(channel) = channels.get(&id).cloned() {
-                channel
-            } else {
-                error(&format!("Guild channel not found!"));
-                return;
-            }
-        }
-        Err(err) => {
-            error(&format!("Failed to remove member role!\n└ {:?}", err));
-            return;
-        }
-    };
-
-    let payload = CreateMessage::new()
-        .content("||@everyone @here||")
-        .embed(embed);
-    if let Err(err) = channel.send_message(ctx.http(), payload).await {
-        error(&format!("Failed to send message!\n└ {:?}", err));
+    if let Ok(author) = ImageSource::url(&avatar_url) {
+        embed = embed.author(
+            EmbedAuthorBuilder::new(username.as_str())
+                .icon_url(author.clone())
+                .build(),
+        );
+        embed = embed.thumbnail(author);
     }
 
+    let embed = embed.build();
+
+    if let Err(err) = ctx
+        .http
+        .create_message(channel_id.clone())
+        .embeds(&[embed])
+        .await
+    {
+        error(&format!("Failed to send message\n└ {:?}", err));
+    }
 }
-*/

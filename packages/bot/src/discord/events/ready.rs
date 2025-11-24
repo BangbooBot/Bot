@@ -66,7 +66,7 @@ impl EventHandler for Ready {
         let activity = Activity {
             application_id: None,
             assets: None,
-            buttons: Vec::new(),
+            buttons: vec![],
             created_at: None,
             details: None,
             emoji: None,
@@ -74,7 +74,7 @@ impl EventHandler for Ready {
             id: None,
             instance: None,
             kind: ActivityType::Custom,
-            name: "Rust-powered bot.\nHosted by discloud.".to_string(),
+            name: "".to_string(),
             party: None,
             secrets: None,
             state: Some("Rust-powered bot.\nHosted by discloud.".to_string()),

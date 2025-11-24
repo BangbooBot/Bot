@@ -214,8 +214,57 @@ pub async fn update_reply(
     true
 }
 
+pub async fn followup_reply(
+    ctx: &Context,
+    interaction: &Box<InteractionCreate>,
+    payload: InteractionResponseData,
+) -> bool {
+    let interaction_api = ctx.http.interaction(interaction.application_id);
+    let mut response = interaction_api.create_followup(&interaction.token);
+
+    if let Some(data) = &payload.allowed_mentions {
+        response = response.allowed_mentions(Some(data));
+    }
+
+    if let Some(data) = &payload.attachments {
+        response = response.attachments(data);
+    }
+
+    if let Some(data) = &payload.components {
+        response = response.components(data);
+    }
+
+    if let Some(data) = &payload.content {
+        response = response.content(data);
+    }
+
+    if let Some(data) = &payload.embeds {
+        response = response.embeds(data);
+    }
+
+    if let Some(data) = &payload.flags {
+        response = response.flags(data.clone());
+    }
+
+    let result = response.await;
+
+    if let Err(err) = result {
+        let cmd_name = match get_app_command_data(interaction) {
+            Some(cmd) => cmd.name.as_str(),
+            None => "",
+        };
+        error(&format!(
+            "Error trying to responde command interaction!\n└ {:?}",
+            err
+        ));
+        return false;
+    }
+
+    true
+}
+
 pub async fn reply_with_embed(
-    ctx: Context,
+    ctx: &Context,
     interaction: &Box<InteractionCreate>,
     flags: MessageFlags,
     color: u32,
@@ -254,7 +303,7 @@ pub async fn reply_with_embed(
 }
 
 pub async fn update_with_embed(
-    ctx: Context,
+    ctx: &Context,
     interaction: &Box<InteractionCreate>,
     flags: MessageFlags,
     color: u32,
@@ -265,13 +314,50 @@ pub async fn update_with_embed(
         .description(content)
         .build();
 
-    let result = ctx.http
+    let result = ctx
+        .http
         .interaction(interaction.application_id)
         .update_response(&interaction.token)
         .embeds(Some(&[embed]))
+        .flags(flags)
         .await;
 
     if let Err(err) = result {
+        error(&format!(
+            "Error trying to responde command interaction!\n└ {:?}",
+            err
+        ));
+        return false;
+    }
+
+    true
+}
+
+pub async fn followup_with_embed(
+    ctx: &Context,
+    interaction: &Box<InteractionCreate>,
+    flags: MessageFlags,
+    color: u32,
+    content: &str,
+) -> bool {
+    let embed = EmbedBuilder::new()
+        .color(color)
+        .description(content)
+        .build();
+
+    let result = ctx
+        .http
+        .interaction(interaction.application_id)
+        .create_followup(&interaction.token)
+        .embeds(&[embed])
+        .flags(flags)
+        .await;
+
+    if let Err(err) = result {
+        let cmd_name = match get_app_command_data(interaction) {
+            Some(cmd) => cmd.name.as_str(),
+            None => "",
+        };
         error(&format!(
             "Error trying to responde command interaction!\n└ {:?}",
             err

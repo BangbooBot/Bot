@@ -32,7 +32,7 @@ impl App {
         let config = Config::new(token.clone(), intents);
         let config_callback = |_, builder: ConfigBuilder| builder.build();
 
-        let mut shards = match twilight_gateway::create_recommended(
+        let shards = match twilight_gateway::create_recommended(
             &http,
             config.clone(),
             config_callback,

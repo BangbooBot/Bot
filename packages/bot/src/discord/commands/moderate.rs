@@ -3,8 +3,11 @@ use crate::discord::*;
 use crate::functions::*;
 use crate::menus::*;
 use async_trait::async_trait;
+use once_cell::sync::Lazy;
 use std::error::Error;
 use twilight_model::channel::message::MessageFlags;
+use twilight_model::id::marker::RoleMarker;
+use twilight_model::id::Id;
 use twilight_model::{
     application::{
         command::{Command, CommandOption, CommandType},
@@ -46,12 +49,37 @@ impl SlashCommandHandler for Moderate {
         ctx: Context,
         interaction: &Box<InteractionCreate>,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let command_data = get_app_command_data(interaction).unwrap();
+        static KERNEL_ROLE: Lazy<Id<RoleMarker>> =
+            Lazy::new(|| Id::<RoleMarker>::new(GUILD.roles.kernel));
+        static STF_ROLE: Lazy<Id<RoleMarker>> =
+            Lazy::new(|| Id::<RoleMarker>::new(GUILD.roles.stf));
+
+        let Some(command_data) = get_app_command_data(interaction) else {
+            error("Failed to get command data");
+            return Ok(());
+        };
+
+        let Some(member) = interaction.member.as_ref() else {
+            error("Error trying to access unknown member");
+            return Ok(());
+        };
+
+        if !member.roles.contains(&KERNEL_ROLE) && !member.roles.contains(&STF_ROLE) {
+            reply_with_embed(
+                &ctx,
+                interaction,
+                MessageFlags::empty(),
+                COLORS.danger,
+                "You are not a mod or the owner of the guild.",
+            )
+            .await;
+            return Ok(());
+        }
 
         let options = &command_data.options[0];
         let CommandOptionValue::String(action) = &options.value else {
             reply_with_embed(
-                ctx,
+                &ctx,
                 interaction,
                 MessageFlags::EPHEMERAL,
                 COLORS.danger,
@@ -95,7 +123,7 @@ impl SlashCommandHandler for Moderate {
 
                 if bans.len() <= 0 {
                     reply_with_embed(
-                        ctx,
+                        &ctx,
                         interaction,
                         MessageFlags::EPHEMERAL,
                         COLORS.danger,

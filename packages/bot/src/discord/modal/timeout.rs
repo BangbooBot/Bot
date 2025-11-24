@@ -1,4 +1,5 @@
 use crate::discord::{Context, ModalHandler};
+use crate::functions::filters::filter_users_from_mod_action;
 use crate::functions::{
     defer_reply, error, get_modal_data, modal_labels_to_hash, officer_cui_action_embed,
     update_reply,
@@ -29,7 +30,15 @@ impl ModalHandler for Timeout {
         ctx: Context,
         interaction: &Box<InteractionCreate>,
     ) -> Result<(), Box<dyn Error + Send + Sync>> {
-        let modal_data = get_modal_data(interaction).unwrap();
+        let Some(modal_data) = get_modal_data(interaction) else {
+            error("Failed to parse modal data");
+            return Ok(());
+        };
+
+        let Some(guild_id) = &interaction.guild_id else {
+            error("Failed to get guild from interaction");
+            return Ok(());
+        };
 
         defer_reply(&ctx, interaction, true).await;
 
@@ -40,7 +49,7 @@ impl ModalHandler for Timeout {
                 error("Failed to parse user field.");
                 return Ok(());
             };
-            menu.values.as_slice()
+            filter_users_from_mod_action(&ctx, guild_id, menu.values.as_slice()).await?
         } else {
             error("Failed to parse user field.");
             return Ok(());
@@ -69,7 +78,7 @@ impl ModalHandler for Timeout {
             return Ok(());
         };
 
-        timeout_action(&ctx, interaction, users, duration, reason).await;
+        timeout_action(&ctx, interaction, &users, duration, reason).await;
 
         Ok(())
     }

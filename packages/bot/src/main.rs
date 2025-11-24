@@ -4,6 +4,7 @@ mod env;
 mod functions;
 mod menus;
 mod models;
+mod tools;
 
 #[cfg(target_env = "gnu")]
 use crate::functions::configure_malloc;

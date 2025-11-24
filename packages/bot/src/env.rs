@@ -8,6 +8,8 @@ use std::env;
 #[derive(Deserialize)]
 pub struct EnvSchema {
     pub BOT_TOKEN: String,
+    pub DISCLOUD_TOKEN: String,
+    pub GEMINI_API_KEY: String,
 }
 
 pub static ENV: Lazy<EnvSchema> = Lazy::new(|| {
