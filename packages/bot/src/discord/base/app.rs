@@ -138,6 +138,15 @@ impl App {
                                 }
                             }
                         }
+                        InteractionData::MessageComponent(message_component) => {
+                            if let Some(callback) =
+                                HANDLERS.message_component_handlers.get(message_component.custom_id.as_str())
+                            {
+                                if let Err(err) = callback.run(ctx, &interaction).await {
+                                    error(&format!("Modal submit error!\n└ {:?}", err));
+                                }
+                            }
+                        }
                         _ => {}
                     }
                 }

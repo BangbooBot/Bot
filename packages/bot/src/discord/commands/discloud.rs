@@ -120,7 +120,7 @@ async fn status(ctx: &Context, interaction: &Box<InteractionCreate>) {
         infos.push(format!(
             "<:refresh:{}>`Latest restart:` **<t:{}:R>**",
             EMOJIS.emojis_static.refresh,
-            timestamp.as_micros() / 1000
+            timestamp.as_secs()
         ));
     } else {
         infos.push(format!(

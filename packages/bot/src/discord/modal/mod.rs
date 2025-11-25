@@ -6,7 +6,7 @@ mod unban;
 
 use crate::discord::*;
 
-pub fn responders() -> Vec<Box<dyn ModalHandler + Send + Sync>> {
+pub fn modal_responders() -> Vec<Box<dyn ModalHandler + Send + Sync>> {
     let responders: Vec<Box<dyn ModalHandler + Send + Sync>> = vec![
         Box::new(delete_message::DeleteMessage),
         Box::new(timeout::Timeout),

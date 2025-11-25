@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use crate::discord::Context;
 use crate::functions::*;
 use twilight_model::application::interaction::application_command::CommandData;
+use twilight_model::application::interaction::message_component::MessageComponentInteractionData;
 use twilight_model::application::interaction::modal::{
     ModalInteractionComponent, ModalInteractionData,
 };
@@ -32,6 +33,20 @@ pub fn get_modal_data(interaction: &Box<InteractionCreate>) -> Option<&Box<Modal
         match data {
             InteractionData::ModalSubmit(modal) => {
                 return Some(modal);
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+pub fn get_message_component_data(
+    interaction: &Box<InteractionCreate>,
+) -> Option<&Box<MessageComponentInteractionData>> {
+    if let Some(data) = &interaction.data {
+        match data {
+            InteractionData::MessageComponent(message) => {
+                return Some(message);
             }
             _ => {}
         }
@@ -206,6 +221,29 @@ pub async fn update_reply(
     if let Err(err) = result {
         error(&format!(
             "Error trying to update command interaction!\n└ {:?}",
+            err
+        ));
+        return false;
+    }
+
+    true
+}
+
+pub async fn defer_update_reply(ctx: &Context, interaction: &Box<InteractionCreate>) -> bool {
+    let response = InteractionResponse {
+        kind: InteractionResponseType::DeferredUpdateMessage,
+        data: None,
+    };
+
+    let result = ctx
+        .http
+        .interaction(interaction.application_id)
+        .create_response(interaction.id, &interaction.token, &response)
+        .await;
+
+    if let Err(err) = result {
+        error(&format!(
+            "Error trying to defer response to interaction!\n└ {:?}",
             err
         ));
         return false;

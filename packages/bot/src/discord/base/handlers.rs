@@ -8,6 +8,7 @@ pub struct Handler {
     pub prefix_command_handlers: HashMap<String, Box<dyn PrefixCommandHandler + Send + Sync>>,
     pub app_command_handlers: HashMap<String, Box<dyn SlashCommandHandler + Send + Sync>>,
     pub modal_handlers: HashMap<String, Box<dyn ModalHandler + Send + Sync>>,
+    pub message_component_handlers: HashMap<String, Box<dyn MessageComponentHandler + Send + Sync>>,
 }
 
 pub static HANDLERS: Lazy<Handler> = Lazy::new(|| {
@@ -35,17 +36,25 @@ pub static HANDLERS: Lazy<Handler> = Lazy::new(|| {
         prefix_command_handlers.insert(name, command);
     }
 
-    let responders = responders();
-    let mut responder_handlers = HashMap::new();
-    for responder in responders {
-        let custom_id = responder.custom_id();
-        responder_handlers.insert(custom_id, responder);
+    let modals = modal_responders();
+    let mut modal_handlers = HashMap::new();
+    for modal in modals {
+        let custom_id = modal.custom_id();
+        modal_handlers.insert(custom_id, modal);
+    }
+    
+    let message_components = message_component_responders();
+    let mut message_component_handlers = HashMap::new();
+    for msg_component in message_components {
+        let custom_id = msg_component.custom_id();
+        message_component_handlers.insert(custom_id, msg_component);
     }
 
     Handler {
         prefix_command_handlers,
         event_handlers,
         app_command_handlers: slash_command_handlers,
-        modal_handlers: responder_handlers,
+        modal_handlers,
+        message_component_handlers
     }
 });

@@ -63,6 +63,21 @@ impl EventHandler for Ready {
             }
         }
 
+        for handler in HANDLERS.message_component_handlers.iter() {
+            let id = handler.0.as_str();
+            log(&format!("{} {}", "▸".bright_green(), id.bright_green()));
+        }
+
+        for handler in HANDLERS.modal_handlers.iter() {
+            let id = handler.0.as_str();
+            log(&format!("{} {}", "▸".bright_green(), id.bright_green()));
+        }
+
+        for handler in HANDLERS.event_handlers.iter() {
+            if let Some(event_name) = handler.0.name() {
+                log(&format!("{} {}", "☉".bright_yellow(), event_name.bright_yellow()));
+            }
+        }
         let activity = Activity {
             application_id: None,
             assets: None,

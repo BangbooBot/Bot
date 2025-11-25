@@ -13,6 +13,7 @@ pub fn events() -> Vec<Box<dyn EventHandler + Send + Sync>> {
         Box::new(ready::Ready),
         Box::new(message_create::MessageCreate),
         Box::new(member_removed::MemberRemove),
+        Box::new(member_update::MemberUpdate),
     ];
 
     events

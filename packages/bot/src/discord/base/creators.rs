@@ -40,3 +40,13 @@ pub trait ModalHandler: Send + Sync {
         interaction: &Box<InteractionCreate>,
     ) -> Result<(), Box<dyn Error + Send + Sync>>;
 }
+
+#[async_trait]
+pub trait MessageComponentHandler: Send + Sync {
+    fn custom_id(&self) -> String;
+    async fn run(
+        &self,
+        ctx: Context,
+        interaction: &Box<InteractionCreate>,
+    ) -> Result<(), Box<dyn Error + Send + Sync>>;
+}
