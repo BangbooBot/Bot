@@ -1,9 +1,10 @@
+use crate::constants::EMOJIS;
 use crate::{discord::*, functions::*};
 use colored::Colorize;
 use std::error::Error;
 use twilight_gateway::{Event, EventType};
 use twilight_model::gateway::payload::outgoing::UpdatePresence;
-use twilight_model::gateway::presence::{Activity, ActivityType, Status};
+use twilight_model::gateway::presence::{Activity, ActivityEmoji, ActivityType, Status};
 
 pub struct Ready;
 
@@ -78,6 +79,7 @@ impl EventHandler for Ready {
                 log(&format!("{} {}", "☉".bright_yellow(), event_name.bright_yellow()));
             }
         }
+
         let activity = Activity {
             application_id: None,
             assets: None,
@@ -89,7 +91,7 @@ impl EventHandler for Ready {
             id: None,
             instance: None,
             kind: ActivityType::Custom,
-            name: "".to_string(),
+            name: "Custom Status".to_string(),
             party: None,
             secrets: None,
             state: Some("Rust-powered bot.\nHosted by discloud.".to_string()),
@@ -98,7 +100,7 @@ impl EventHandler for Ready {
         };
 
         if let Ok(presence) = UpdatePresence::new(vec![activity], false, None, Status::Online) {
-            ctx.shard.lock().await.command(&presence);
+            ctx.sender.command(&presence)?;
         }
 
         Ok(())

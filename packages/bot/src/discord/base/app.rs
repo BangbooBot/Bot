@@ -2,10 +2,10 @@ use crate::discord::HANDLERS;
 use crate::functions::log;
 use crate::{env::ENV, functions::error};
 use std::sync::Arc;
-use tokio::{sync::Mutex, task::JoinSet};
+use tokio::task::JoinSet;
 use twilight_cache_inmemory::{DefaultInMemoryCache, InMemoryCache, ResourceType};
 use twilight_gateway::{
-    Config, ConfigBuilder, Event, EventTypeFlags, Intents, Shard, StreamExt as _,
+    Config, ConfigBuilder, Event, EventTypeFlags, Intents, MessageSender, Shard, StreamExt as _
 };
 use twilight_http::Client;
 use twilight_model::application::interaction::InteractionData;
@@ -13,14 +13,14 @@ use twilight_model::application::interaction::InteractionData;
 pub struct App {
     pub http: Arc<Client>,
     pub cache: Arc<InMemoryCache>,
-    pub shards: Vec<Arc<Mutex<Shard>>>,
+    pub shards: Vec<Shard>,
 }
 
 #[derive(Clone)]
 pub struct Context {
     pub http: Arc<Client>,
     pub cache: Arc<InMemoryCache>,
-    pub shard: Arc<Mutex<Shard>>,
+    pub sender: MessageSender,
 }
 
 impl App {
@@ -44,10 +44,7 @@ impl App {
                 error(&format!("Error trying to create shards\n└ {:?}", err));
                 panic!();
             }
-        }
-        .into_iter()
-        .map(|shard| Arc::new(Mutex::new(shard)))
-        .collect::<Vec<Arc<Mutex<_>>>>();
+        }.collect::<Vec<_>>();
 
         let cache = Arc::new(
             DefaultInMemoryCache::builder()
@@ -64,11 +61,11 @@ impl App {
 
     pub async fn run(&mut self) {
         let mut set = JoinSet::new();
-        for shard in self.shards.iter() {
+        for shard in self.shards.drain(..) {
             set.spawn(App::shard_handle(
                 self.http.clone(),
                 self.cache.clone(),
-                shard.clone(),
+                shard,
             ));
         }
         while let Some(res) = set.join_next().await {
@@ -82,30 +79,27 @@ impl App {
     pub async fn shard_handle(
         http: Arc<Client>,
         cache: Arc<InMemoryCache>,
-        shard: Arc<Mutex<Shard>>,
+        mut shard: Shard,
     ) {
         let ctx = Context {
             http,
             cache,
-            shard: shard.clone(),
+            sender: shard.sender(),
         };
 
-        loop {
-            let mut locked_shard = ctx.shard.lock().await;
-
-            while let Some(item) = locked_shard.next_event(EventTypeFlags::all()).await {
+        while let Some(item) = shard.next_event(EventTypeFlags::all()).await {
                 let Ok(event) = item else {
                     error(&format!("Error receiving event\n└ {:?}", item.unwrap_err()));
 
                     continue;
                 };
+                
 
                 // Update the cache with the event.
                 ctx.cache.update(&event);
 
                 tokio::spawn(App::handle_event(ctx.clone(), event));
             }
-        }
     }
 
     async fn handle_event(ctx: Context, event: Event) {
@@ -115,7 +109,7 @@ impl App {
             }
             return;
         }
-
+        
         match event {
             Event::InteractionCreate(interaction) => {
                 if let Some(data) = &interaction.data {
