@@ -6,11 +6,14 @@ using Bangboo.Modules;
 using Bangboo.Modules.Services;
 using Bangboo.Server.Services;
 using Microsoft.EntityFrameworkCore;
+using NetCord;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
 using NetCord.Hosting.Services;
 using NetCord.Hosting.Services.ApplicationCommands;
+using NetCord.Hosting.Services.ComponentInteractions;
 using NetCord.Rest;
+using NetCord.Services.ComponentInteractions;
 using Scalar.AspNetCore;
 
 var discordServiceModuleType = typeof(DiscordServiceModule);
@@ -56,6 +59,7 @@ var discordBuilder = Host.CreateDefaultBuilder()
             .ValidateOnStart();
 
         services.AddSingleton<Emojis>(_ => new Emojis());
+        services.AddSingleton<Constants>(_ => new Constants());
 
         services.AddDbContext<AppDbContext>(options =>
         {
@@ -73,6 +77,7 @@ var discordBuilder = Host.CreateDefaultBuilder()
         }
 
         services.AddGatewayHandlers(typeof(Program).Assembly);
+        services.AddComponentInteractions<ModalInteraction, ModalInteractionContext>();
     })
     .UseApplicationCommands();
 

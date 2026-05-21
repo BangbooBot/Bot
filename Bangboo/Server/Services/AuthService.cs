@@ -19,7 +19,7 @@ public class AuthService : ServerServicesModule
     public async Task<(bool result, SessionsModel? sessionModel)> ValidateSession(HttpRequest request)
     {
         var sessionId = 0UL;
-        if (!ulong.TryParse(request.Cookies["SessionId"] ?? "0", out ulong result))
+        if (!ulong.TryParse(request.Cookies["session-id"] ?? "0", out ulong result))
         {
             return (false, null);
         }

@@ -185,7 +185,7 @@ public class AuthController : ControllerBase
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddSeconds(tokenExchangeData.ExpiresIn)
         };
-        HttpContext.Response.Cookies.Append("SessionId", sessionId.ToString(), cookieOptions);
+        HttpContext.Response.Cookies.Append("session-id", sessionId.ToString(), cookieOptions);
 
         return Ok(new LoginResponse
         {
@@ -218,6 +218,7 @@ public class AuthController : ControllerBase
 
         await dbCtx.SaveChangesAsync();
 
+        HttpContext.Response.Cookies.Delete("session-id");
         return NoContent();
     }
 }

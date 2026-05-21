@@ -3,6 +3,56 @@ using NetCord;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+public class Colors
+{
+    public int Default { get; set; }
+    public int Primary { get; set; }
+    public int Secondary { get; set; }
+    public int Success { get; set; }
+    public int Danger { get; set; }
+    public int Warning { get; set; }
+    public int Azoxo { get; set; }
+    public int Green { get; set; }
+    public int Yellow { get; set; }
+    public int Fuchsia { get; set; }
+    public int Magic { get; set; }
+    public int Developer { get; set; }
+    public int Balance { get; set; }
+    public int Brilliance { get; set; }
+    public int Nitro { get; set; }
+    public int Bravery { get; set; }
+    public int Royal { get; set; }
+}
+
+public class Constants
+{
+    public Colors Colors { get; set; }
+    
+    public Constants()
+    {
+        var json = File.ReadAllText("constants.json");
+        var obj = JObject.Parse(json);
+        
+        var colorsItems = obj["colors"]?.ToObject<Dictionary<string, string>>()
+                          ?? new Dictionary<string, string>();
+        
+        var colorsItemsDict = new Dictionary<string, int>();
+        foreach (var item in colorsItems)
+        {
+            string cleanHex = item.Value.StartsWith('#') ? item.Value[1..] : item.Value;
+            int colorInt = Convert.ToInt32(cleanHex, 16);
+            colorsItemsDict.Add(item.Key, colorInt);
+        }
+        
+        var colorsJson = JsonConvert.SerializeObject(colorsItemsDict);
+        
+        
+
+        Colors = JsonConvert.DeserializeObject<Colors>(colorsJson) ?? new Colors();
+    }
+}
+
+
 public class Emojis
 {
     [JsonProperty("static")] public Static Static;

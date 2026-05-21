@@ -53,7 +53,7 @@ public class JsonAuthToken
 
 public class LoginResponse
 {
-    public DateOnly ExpiresIn { get; set; }
-    public String Username { get; set; }
+    public required String Username { get; set; }
     public String? Avatar { get; set; }
+    public required DateOnly ExpiresIn { get; set; }
 }

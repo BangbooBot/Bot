@@ -26,7 +26,7 @@ public class GlobalMiddleware : MiddlewareModule
             return;
         }
 
-        if (!isPublicRoute && !context.Request.Cookies.ContainsKey("SessionId") && !isDocApiRoute)
+        if (!isPublicRoute && !context.Request.Cookies.ContainsKey("session-id") && !isDocApiRoute)
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             await context.Response.WriteAsync("Missing credentials");
