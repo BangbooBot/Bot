@@ -3,15 +3,19 @@ using NetCord;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using Bangboo.Utils;
-using Embed = Bangboo.Utils.Embed;
+using EmbedBuilder = Bangboo.Utils.EmbedBuilder;
 
 public enum ModAction
 {
-    [SlashCommandChoice(Name = "Delete Message")]
+    [SlashCommandChoice(Name = "delete dessage")]
     DeleteMessage,
+    [SlashCommandChoice(Name = "timeout")]
     Timeout,
+    [SlashCommandChoice(Name = "kick")]
     Kick,
+    [SlashCommandChoice(Name = "ban")]
     Ban,
+    [SlashCommandChoice(Name = "unban")]
     Unban
 }
 
@@ -32,7 +36,7 @@ public class ModerationModule: ApplicationCommandModule<ApplicationCommandContex
         //var guildUser = Context.User as GuildUser;
         if (Context.Guild.OwnerId !=  Context.User.Id)
         {
-            var embed = Embed.Res("You are not a mod or the owner of the guild.", _constants.Colors.Danger);
+            var embed = EmbedBuilder.Res("You are not a mod or the owner of the guild.", _constants.Colors.Danger);
             await Context.Interaction.SendResponseAsync(
                 InteractionCallback.Message(new(){ Embeds = [embed] })
                 );
@@ -68,7 +72,7 @@ public class ModerationModule: ApplicationCommandModule<ApplicationCommandContex
                 var bannedMembers = await Context.Guild.GetBansAsync(new() { BatchSize = 25 }).ToListAsync();
                 if (bannedMembers.Count == 0)
                 {
-                    var embed = Embed.Res("There is no banned members in this guild", _constants.Colors.Danger);
+                    var embed = EmbedBuilder.Res("There is no banned members in this guild", _constants.Colors.Danger);
                     await Context.Interaction.SendResponseAsync(
                         InteractionCallback.Message(new(){ Embeds = [embed] })
                     );

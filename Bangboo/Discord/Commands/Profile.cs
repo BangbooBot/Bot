@@ -2,18 +2,18 @@ using NetCord;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using Bangboo.Utils;
-using Embed = Bangboo.Utils.Embed;
+using EmbedBuilder = Bangboo.Utils.EmbedBuilder;
 
-public class AgeModule : ApplicationCommandModule<ApplicationCommandContext>
+public class ProfileModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     private readonly Constants _constants;
     
-    public AgeModule(Constants constants)
+    public ProfileModule(Constants constants)
     {
         _constants = constants;
     }
     
-    [SlashCommand("age", "Displays your or another user's account creation date", Contexts = [InteractionContextType.Guild])]
+    [SlashCommand("profile", "Displays your or another user's account creation date", Contexts = [InteractionContextType.Guild])]
     public async Task Age(
         [SlashCommandParameter(Name = "user", Description = "Selected user")] User? user = null
         )
@@ -34,7 +34,7 @@ public class AgeModule : ApplicationCommandModule<ApplicationCommandContext>
             ageMessage = $"**{user.Username}**'s account was created <t:{unixTimestamp}:R> on <t:{unixTimestamp}:F>";
         }
         
-        var embed = Embed.Res(ageMessage, _constants.Colors.Green);
+        var embed = EmbedBuilder.Res(ageMessage, _constants.Colors.Green);
         
         await Context.Interaction.ModifyResponseAsync(message =>
             message.AddEmbeds([embed])
