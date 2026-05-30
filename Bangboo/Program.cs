@@ -53,14 +53,17 @@ var discordBuilder = Host.CreateDefaultBuilder()
     })
     .ConfigureServices(services =>
     {
+        // Dotenv
         services.AddOptions<Env>()
             .Bind(builder.Configuration.GetSection("Env"))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.AddSingleton<Emojis>(_ => new Emojis());
+        // Constants
         services.AddSingleton<Constants>(_ => new Constants());
+        services.AddSingleton<Emojis>(_ => new Emojis());
 
+        // Database
         services.AddDbContext<AppDbContext>(options =>
         {
             options.UseNpgsql(
@@ -71,18 +74,18 @@ var discordBuilder = Host.CreateDefaultBuilder()
         services.AddScoped<DatabaseService>();
         //services.AddScoped<AutomodService>();
 
+        // Discord Services
         foreach (var moduleType in discordTypes)
         {
-            services.AddScoped(moduleType);
+            services.AddSingleton(moduleType);
         }
 
         services.AddGatewayHandlers(typeof(Program).Assembly);
+        services.AddApplicationCommands();
         services.AddComponentInteractions<ModalInteraction, ModalInteractionContext>();
-    })
-    .UseApplicationCommands();
+    });
 
 var bot = discordBuilder.Build();
-
 bot.AddModules(typeof(Program).Assembly);
 
 // Add services to the container.

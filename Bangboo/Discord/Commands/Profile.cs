@@ -4,17 +4,17 @@ using NetCord.Services.ApplicationCommands;
 using Bangboo.Utils;
 using Embed = Bangboo.Utils.Embed;
 
-public class AgeModule : ApplicationCommandModule<ApplicationCommandContext>
+public class ProfileModule : ApplicationCommandModule<ApplicationCommandContext>
 {
     private readonly Constants _constants;
     
-    public AgeModule(Constants constants)
+    public ProfileModule(Constants constants)
     {
         _constants = constants;
     }
     
-    [SlashCommand("age", "Displays your or another user's account creation date", Contexts = [InteractionContextType.Guild])]
-    public async Task Age(
+    [SlashCommand("profile", "Displays your or another member's info from guild", Contexts = [InteractionContextType.Guild])]
+    public async Task Profile(
         [SlashCommandParameter(Name = "user", Description = "Selected user")] User? user = null
         )
     {

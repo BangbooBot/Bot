@@ -32,6 +32,9 @@ public class MemberEventsModel
     [DefaultValue(false)]
     public bool OnMute { get; set; } = false;
     
+    [Column("system_channel_id")]
+    public ulong? SystemChannelId { get; set; }
+    
     [Column("boost_channel_id")]
     public ulong? BoostChannelId { get; set; }
     

@@ -1,13 +1,22 @@
 using Bangboo.Discord.Services;
 using NetCord.Gateway;
 using NetCord.Hosting.Gateway;
+using NetCord.Rest;
 
 namespace Bangboo.Discord.Events;
 
-public class MessageCreateHandler(ILogger<MessageCreateHandler> logger) : IMessageCreateGatewayHandler
+public class MessageCreateHandler : IMessageCreateGatewayHandler
 {
-    //private readonly AutomodService _automodService = automodService;
-    
+    private readonly ILogger<MessageCreateHandler> _logger;
+    private readonly GlobalService _globalService;
+
+    public MessageCreateHandler(ILogger<MessageCreateHandler> logger, IServiceScopeFactory scopeFactory)
+    {
+        _logger = logger;
+        var scope = scopeFactory.CreateScope();
+        _globalService = scope.ServiceProvider.GetRequiredService<GlobalService>();
+    }
+
     public async ValueTask HandleAsync(Message arg)
     {
         if (arg.Author.IsBot) return;
