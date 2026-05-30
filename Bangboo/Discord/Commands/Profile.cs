@@ -2,7 +2,7 @@ using NetCord;
 using NetCord.Rest;
 using NetCord.Services.ApplicationCommands;
 using Bangboo.Utils;
-using Embed = Bangboo.Utils.Embed;
+using EmbedBuilder = Bangboo.Utils.EmbedBuilder;
 
 public class ProfileModule : ApplicationCommandModule<ApplicationCommandContext>
 {
@@ -34,7 +34,7 @@ public class ProfileModule : ApplicationCommandModule<ApplicationCommandContext>
             ageMessage = $"**{user.Username}**'s account was created <t:{unixTimestamp}:R> on <t:{unixTimestamp}:F>";
         }
         
-        var embed = Embed.Res(ageMessage, _constants.Colors.Green);
+        var embed = EmbedBuilder.Res(ageMessage, _constants.Colors.Green);
         
         await Context.Interaction.ModifyResponseAsync(message =>
             message.AddEmbeds([embed])

@@ -80,6 +80,7 @@ var discordBuilder = Host.CreateDefaultBuilder()
             services.AddSingleton(moduleType);
         }
 
+        // Handlers
         services.AddGatewayHandlers(typeof(Program).Assembly);
         services.AddApplicationCommands();
         services.AddComponentInteractions<ModalInteraction, ModalInteractionContext>();

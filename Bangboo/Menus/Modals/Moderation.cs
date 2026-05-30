@@ -32,7 +32,7 @@ public class ModerationMenus
     
     public static ModalProperties TimeoutMenu()
     {
-        var timeoutModal = new ModalProperties("moderete-timeout", "Timeout user(s)")
+        var timeoutModal = new ModalProperties("modal/moderate/timeout", "Timeout user(s)")
             .AddComponents(
                 new TextDisplayProperties("# Warning\nBangboo will automatically filter and remove the guild owner and moderators if any are selected."),
                 
@@ -56,6 +56,7 @@ public class ModerationMenus
 
                 new LabelProperties("Reason", new TextInputProperties("timeout-reason", TextInputStyle.Short)
                     .WithPlaceholder("Visible in audity logs")
+                    .WithRequired(false)
                 )
             );
         return timeoutModal;
